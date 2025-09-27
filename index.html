@@ -60,9 +60,20 @@
   </div>
 
   <script>
+    // Replace the <p class="sub"> content with ?text=... from the URL
+    // Example: index.html?text=Hello%20there  (use %20 for spaces)
+    (function () {
+      const p = document.querySelector('.sub');
+      if (!p) return;
+      const params = new URLSearchParams(location.search);
+      const raw = params.get('text');              // already decodes %xx
+      if (raw) p.textContent = raw.replace(/\+/g, ' '); // treat + as space too
+    })();
+
+    // ...your existing script continues here (preload, stars, etc.)
     // Replace "aaa" with ?text=... from the URL (e.g., index.html?text=Hello%20there)
-    const urlText = new URLSearchParams(location.search).get('text');
-    if (urlText) document.querySelector('aaa').textContent = urlText;
+//    const urlText = new URLSearchParams(location.search).get('text');
+//    if (urlText) document.querySelector('.sub').textContent = urlText;
 
     // (the rest of your existing script continues unchanged)
       // Preload Santa images
