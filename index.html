@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Santa Mood Rater (No Build)</title>
+  <title>Santa Mood Rater</title>
   <style>
     :root { --bg:#f7fbff; --card:#ffffff; --ink:#1f2937; --muted:#6b7280; --ring:rgba(14,165,233,.35);}
     *{box-sizing:border-box;} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; background:linear-gradient(180deg,var(--bg),#fff); color:var(--ink);}
@@ -22,7 +22,8 @@
   <div class="wrap">
     <div class="card">
       <h1>Santa Mood Rater</h1>
-      <p class="sub">Pick stars and toggle the switch. Santa only appears after you choose the required stars. The second set of stars only shows Monday–Friday.</p>
+<!-- Pick stars and toggle the switch. Santa only appears after you choose the required stars. The second set of stars only shows Monday–Friday. -->
+      <p class="sub">aaa</p>
 
       <!-- First stars -->
       <div class="row stars-row">
@@ -46,7 +47,7 @@
         <span class="sr-only" id="mood-label">ANNA</span>
         <input id="moodCheck" type="checkbox" aria-labelledby="mood-label" />
         <span class="track"><span class="thumb"></span></span>
-        <span id="moodText">Checkbox: false (sad)</span>
+        <span id="moodText"> </span>
       </label>
 
       <!-- Santa -->
@@ -59,7 +60,12 @@
   </div>
 
   <script>
-  // Preload Santa images
+    // Replace "aaa" with ?text=... from the URL (e.g., index.html?text=Hello%20there)
+    const urlText = new URLSearchParams(location.search).get('text');
+    if (urlText) document.querySelector('.sub').textContent = urlText;
+
+    // (the rest of your existing script continues unchanged)
+      // Preload Santa images
   const preloadHappy = new Image(); preloadHappy.src = 'images/happysanta.jpg';
   const preloadSad = new Image(); preloadSad.src = 'images/sadsanta.png';
 
