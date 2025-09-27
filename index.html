@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Santa Mood Rater (No Build)</title>
+  <style>
+    :root { --bg:#f7fbff; --card:#ffffff; --ink:#1f2937; --muted:#6b7280; --ring:rgba(14,165,233,.35);}
+    *{box-sizing:border-box;} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; background:linear-gradient(180deg,var(--bg),#fff); color:var(--ink);}
+    .wrap{max-width:720px;margin:0 auto;padding:24px;min-height:100svh;display:grid;place-items:center;} .card{width:100%;background:var(--card);border:1px solid #e5e7eb;border-radius:16px;padding:20px;box-shadow:0 6px 30px rgba(0,0,0,.06);}
+    h1{margin:0 0 6px;font-size:clamp(22px,3.8vw,28px);} p.sub{margin:0 0 18px;color:var(--muted);font-size:14px;}
+    .row{display:grid;gap:10px;align-items:center;margin-top:10px;} .stars-row{grid-template-columns:80px 1fr;gap:12px;align-items:center;}
+    .badge{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:#f1f5f9;border:1px solid #e2e8f0;}
+    .stars{display:inline-flex;gap:8px;} .star-btn{width:44px;height:44px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;display:grid;place-items:center;cursor:pointer;transition:transform .06s ease,box-shadow .2s;outline:none;} .star-btn:active{transform:scale(.96);} .star-btn:focus-visible{box-shadow:0 0 0 4px var(--ring);} .star{width:26px;height:26px;stroke:#111827;fill:none;} .star.filled{fill:#facc15;stroke:#a16207;}
+    .hint{font-size:12px;color:var(--muted);margin-top:4px;}
+    .switch{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none;margin-top:6px;} .track{width:52px;height:30px;background:#e5e7eb;border-radius:999px;position:relative;transition:background .2s;} .thumb{position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.15);transition:transform .2s;} input[type="checkbox"]:checked + .track{background:#10b981;} input[type="checkbox"]:checked + .track .thumb{transform:translateX(22px);}
+    .santa-wrap{display:none;text-align:center;margin-top:18px;} .santa-card{display:inline-block;padding:14px;border-radius:16px;background:#f8fafc;box-shadow:inset 0 1px 0 #e5e7eb;}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Santa Mood Rater</h1>
+      <p class="sub">Pick stars and toggle the switch. Santa only appears after you choose the required stars. The second set of stars only shows Monday–Friday.</p>
+
+      <!-- First stars -->
+      <div class="row stars-row">
+        <div class="badge"><img src="images/food.jpg" alt="Food icon" width="80" height="80" style="border-radius:12px;"/></div>
+        <div>
+          <div class="stars" id="stars-primary"></div>
+          <div class="hint" id="hint-primary">No rating yet</div>
+        </div>
+      </div>
+
+      <!-- Weekday stars -->
+      <div class="row stars-row" id="weekday-block" hidden>
+        <div class="badge"><img src="images/book.jpg" alt="Book icon" width="80" height="80" style="border-radius:12px;"/></div>
+        <div>
+          <div class="stars" id="stars-weekday"></div>
+          <div class="hint" id="hint-weekday">No rating yet</div>
+        </div>
+      </div>
+
+      <label class="switch">
+        <span class="sr-only" id="mood-label">ANNA</span>
+        <input id="moodCheck" type="checkbox" aria-labelledby="mood-label" />
+        <span class="track"><span class="thumb"></span></span>
+        <span id="moodText">Checkbox: false (sad)</span>
+      </label>
+
+      <!-- Santa -->
+      <div class="santa-wrap" id="santaWrap">
+        <div class="santa-card">
+          <img id="santaImg" src="" alt="Santa mood" width="220" height="220" style="display:block; border-radius:12px;"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // Preload Santa images
+  const preloadHappy = new Image(); preloadHappy.src = 'images/happysanta.jpg';
+  const preloadSad = new Image(); preloadSad.src = 'images/sadsanta.png';
+
+  function makeStarButton(value, groupId){const btn=document.createElement('button');btn.className='star-btn';btn.type='button';btn.dataset.value=value;btn.dataset.group=groupId;btn.innerHTML=`<svg class="star" viewBox="0 0 24 24"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;return btn;}
+  function renderStars(containerId,hintId,rating){const container=document.getElementById(containerId);const hint=document.getElementById(hintId);[...container.children].forEach(btn=>{const v=Number(btn.dataset.value);const svg=btn.querySelector('.star');if(rating>=v){svg.classList.add('filled');}else{svg.classList.remove('filled');}});hint.textContent=rating?`${rating} star${rating>1?'s':''} selected`:'No rating yet';}
+
+  const primary={id:'stars-primary',hint:'hint-primary',rating:0};
+  let weekday=null; // only defined on weekdays
+
+  // --- initialize stars ---
+  // primary row (always)
+  {
+    const el=document.getElementById(primary.id);
+    for (let i=1;i<=5;i++) el.appendChild(makeStarButton(i,primary.id));
+    renderStars(primary.id,primary.hint,0);
+  }
+
+  // weekday row: only exist on Mon–Fri
+  (function(){
+    const block=document.getElementById('weekday-block');
+    const d=new Date().getDay(); // 0=Sun,6=Sat
+    const isWeekday = d>=1 && d<=5;
+
+    if (!isWeekday) {
+      // remove from DOM so it truly doesn't exist on weekends
+      if (block) block.remove();
+    } else {
+      if (block) {
+        block.hidden=false; // ensure visible
+        weekday={id:'stars-weekday',hint:'hint-weekday',rating:0};
+        const el=document.getElementById(weekday.id);
+        for (let i=1;i<=5;i++) el.appendChild(makeStarButton(i,weekday.id));
+        renderStars(weekday.id,weekday.hint,0);
+        document.getElementById(weekday.id).addEventListener('click', onStarClick);
+      }
+    }
+  })();
+
+  const santaWrap=document.getElementById('santaWrap');
+  const santaImg=document.getElementById('santaImg');
+  const moodCheck=document.getElementById('moodCheck');
+  const moodText=document.getElementById('moodText');
+  const URL_HAPPY='images/happysanta.jpg';
+  const URL_SAD='images/sadsanta.png';
+
+  function isWeekday(){const d=new Date().getDay();return d>=1&&d<=5;}
+  function shouldShowSanta(){if(isWeekday()){return primary.rating>0&&weekday&&weekday.rating>0;}return primary.rating>0;}
+  function updateSantaVisibility(){santaWrap.style.display=shouldShowSanta()?'block':'none';}
+  function updateMood(){const smiling=moodCheck.checked;santaImg.src=smiling?URL_HAPPY:URL_SAD;santaImg.alt=smiling?'Happy Santa':'Sad Santa';moodText.textContent=`Checkbox: ${smiling?'true (smile)':'false (sad)'}`;}
+  moodCheck.addEventListener('change',()=>{updateMood();updateSantaVisibility();});
+
+  function onStarClick(e){const btn=e.target.closest('.star-btn');if(!btn)return;const gid=btn.dataset.group;const v=Number(btn.dataset.value);if(gid===primary.id){primary.rating=v;renderStars(primary.id,primary.hint,primary.rating);}else if(weekday && gid===weekday.id){weekday.rating=v;renderStars(weekday.id,weekday.hint,weekday.rating);}updateMood();updateSantaVisibility();}
+
+  document.getElementById(primary.id).addEventListener('click',onStarClick);
+  // NOTE: weekday click listener is attached above only when it exists (Mon–Fri)
+
+  updateSantaVisibility();updateMood();
+</script>
+</body>
+</html>
