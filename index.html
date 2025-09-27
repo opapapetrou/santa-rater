@@ -23,7 +23,7 @@
     <div class="card">
       <h1>Santa Mood Rater</h1>
 <!-- Pick stars and toggle the switch. Santa only appears after you choose the required stars. The second set of stars only shows Monday–Friday. -->
-      <p class="sub">aaa</p>
+      <p class="sub"></p>
 
       <!-- First stars -->
       <div class="row stars-row">
@@ -60,14 +60,12 @@
   </div>
 
   <script>
-    // Replace the <p class="sub"> content with ?text=... from the URL
-    // Example: index.html?text=Hello%20there  (use %20 for spaces)
     (function () {
-      const p = document.querySelector('.sub');
-      if (!p) return;
+      const h1 = document.querySelector('h1');
+      if (!h1) return;
       const params = new URLSearchParams(location.search);
-      const raw = params.get('text');              // already decodes %xx
-      if (raw) p.textContent = raw.replace(/\+/g, ' '); // treat + as space too
+      const raw = params.get('text');
+      if (raw) h1.textContent = raw.replace(/\+/g, ' ');
     })();
 
     // ...your existing script continues here (preload, stars, etc.)
