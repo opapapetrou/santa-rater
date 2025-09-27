@@ -114,7 +114,7 @@
   function isWeekday(){const d=new Date().getDay();return d>=1&&d<=5;}
   function shouldShowSanta(){if(isWeekday()){return primary.rating>0&&weekday&&weekday.rating>0;}return primary.rating>0;}
   function updateSantaVisibility(){santaWrap.style.display=shouldShowSanta()?'block':'none';}
-  function updateMood(){const smiling=moodCheck.checked;santaImg.src=smiling?URL_HAPPY:URL_SAD;santaImg.alt=smiling?'Happy Santa':'Sad Santa';moodText.textContent=`Checkbox: ${smiling?'true (smile)':'false (sad)'}`;}
+  function updateMood(){const smiling=moodCheck.checked;santaImg.src=smiling?URL_HAPPY:URL_SAD;santaImg.alt=smiling?'Happy Santa':'Sad Santa';moodText.textContent=` `;}
   moodCheck.addEventListener('change',()=>{updateMood();updateSantaVisibility();});
 
   function onStarClick(e){const btn=e.target.closest('.star-btn');if(!btn)return;const gid=btn.dataset.group;const v=Number(btn.dataset.value);if(gid===primary.id){primary.rating=v;renderStars(primary.id,primary.hint,primary.rating);}else if(weekday && gid===weekday.id){weekday.rating=v;renderStars(weekday.id,weekday.hint,weekday.rating);}updateMood();updateSantaVisibility();}
